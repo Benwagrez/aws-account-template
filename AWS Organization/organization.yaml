@@ -1,0 +1,338 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: AWS CloudFormation Organizations Deployment
+Parameters:
+  ActivatedRegions:
+    Type: List<String>
+    Default: ["us-east-1","us-east-2","us-west-1","us-west-2"]
+    Description: Enter the regions that will be enabled on AWS. Any regions excluded will be locked from the creation of any region specific resources.
+  AccountSecurityLogArchiveName:
+    Type: String
+    Default: Log Archive
+    Description: Enter the name of the log archive account.
+  AccountSecurityLogArchiveEmail:
+    Type: String
+    Description: Enter the email of the log archive account.
+  AccountSecurityToolsName:
+    Type: String
+    Default: Security Tools
+    Description: Enter the name of the security tools account.
+  AccountSecurityToolsEmail:
+    Type: String
+    Description: Enter the email of the security tools account.
+Resources:
+  OrganizationRoot:
+    DeletionPolicy: Retain
+    Type: 'AWS::Organizations::Organization'
+    Properties:
+      FeatureSet: ALL
+  OrganizationSecurityOU:
+    Type: 'AWS::Organizations::OrganizationalUnit'
+    Properties:
+      Name: Security
+      ParentId: !GetAtt OrganizationRoot.RootId
+  OrganizationSecurityProductionOU:
+    Type: 'AWS::Organizations::OrganizationalUnit'
+    Properties:
+      Name: Production
+      ParentId: !Ref OrganizationSecurityOU
+  OrganizationInfrastructureOU:
+    Type: 'AWS::Organizations::OrganizationalUnit'
+    Properties:
+      Name: Infrastructure
+      ParentId: !GetAtt OrganizationRoot.RootId
+  OrganizationWorkloadOU:
+    Type: 'AWS::Organizations::OrganizationalUnit'
+    Properties:
+      Name: Workload
+      ParentId: !GetAtt OrganizationRoot.RootId
+  OrganizationSandboxOU:
+    Type: 'AWS::Organizations::OrganizationalUnit'
+    Properties:
+      Name: Sandbox
+      ParentId: !GetAtt OrganizationRoot.RootId
+  AccountSecurityLogArchive:
+    Type: AWS::Organizations::Account
+    Properties:
+      AccountName: !Ref AccountSecurityLogArchiveName
+      Email: !Ref AccountSecurityLogArchiveEmail
+      ParentIds: 
+        - !Ref OrganizationSecurityProductionOU
+      Tags: 
+        - Key: ApplicationId
+          Value: FOUNDATIONAL
+        - Key: BusinessUnitId
+          Value: CyberOps
+        - Key: CostCenter
+          Value: 122823
+        - Key: EnvironmentId
+          Value: Production
+        - Key: Description
+          Value: AWS account for centralized logging, Monitoring, application insights.
+    DependsOn:  
+      - PolicySCPDenyControlResourceChanges
+      - PolicySCPDenyOrganizationWithdraw
+      - PolicyOrganizationTagging
+      - OrganizationSecurityProductionOU
+  AccountSecurityTools:
+    Type: AWS::Organizations::Account
+    Properties:
+      AccountName: !Ref AccountSecurityToolsName
+      Email: !Ref AccountSecurityToolsEmail
+      ParentIds: 
+        - !Ref OrganizationSecurityProductionOU
+      Tags: 
+        - Key: ApplicationId
+          Value: FOUNDATIONAL
+        - Key: BusinessUnitId
+          Value: CyberOps
+        - Key: CostCenter
+          Value: 122823
+        - Key: EnvironmentId
+          Value: Production
+        - Key: Description
+          Value: AWS account for peventative and responsive security controls.
+    DependsOn: 
+      - PolicySCPDenyControlResourceChanges
+      - PolicySCPDenyOrganizationWithdraw
+      - PolicyOrganizationTagging
+      - OrganizationSecurityProductionOU
+  PolicyAIServicesDataCollectionOptOut:
+    DeletionPolicy: Retain
+    Type: AWS::Organizations::Policy
+    Properties:
+      Type: AISERVICES_OPT_OUT_POLICY
+      Name: PolicyAIServicesDataCollectionOptOut
+      TargetIds: OrganizationRoot.RootId
+      Content: >-
+        {"services":{"default":{"opt_out_policy":{"@@assign":"optOut"}}}}
+  PolicySCPDenyControlResourceChanges:
+    DeletionPolicy: Retain
+    Type: AWS::Organizations::Policy
+    Properties:
+      Type: SERVICE_CONTROL_POLICY
+      Name: PolicySCPDenyControlResourceChanges
+      TargetIds: OrganizationRoot.RootId
+      Content: >-
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Action": [
+                "cloudwatch:DeleteAlarms",
+                "cloudwatch:DeleteDashboards",
+                "cloudwatch:DisableAlarmActions",
+                "cloudwatch:PutDashboard",
+                "cloudwatch:PutMetricAlarm",
+                "cloudwatch:SetAlarmState",
+                "config:DeleteConfigRule",
+                "config:DeleteConfigurationRecorder",
+                "config:DeleteDeliveryChannel",
+                "config:StopConfigurationRecorder",
+                "guardduty:AcceptInvitation",
+                "guardduty:ArchiveFindings",
+                "guardduty:CreateDetector",
+                "guardduty:CreateFilter",
+                "guardduty:CreateIPSet",
+                "guardduty:CreateMembers",
+                "guardduty:CreatePublishingDestination",
+                "guardduty:CreateSampleFindings",
+                "guardduty:CreateThreatIntelSet",
+                "guardduty:DeclineInvitations",
+                "guardduty:DeleteDetector",
+                "guardduty:DeleteFilter",
+                "guardduty:DeleteInvitations",
+                "guardduty:DeleteIPSet",
+                "guardduty:DeleteMembers",
+                "guardduty:DeletePublishingDestination",
+                "guardduty:DeleteThreatIntelSet",
+                "guardduty:DisassociateFromMasterAccount",
+                "guardduty:DisassociateMembers",
+                "guardduty:InviteMembers",
+                "guardduty:StartMonitoringMembers",
+                "guardduty:StopMonitoringMembers",
+                "guardduty:TagResource",
+                "guardduty:UnarchiveFindings",
+                "guardduty:UntagResource",
+                "guardduty:UpdateDetector",
+                "guardduty:UpdateFilter",
+                "guardduty:UpdateFindingsFeedback",
+                "guardduty:UpdateIPSet",
+                "guardduty:UpdatePublishingDestination",
+                "guardduty:UpdateThreatIntelSet"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+  PolicySCPDenyOrganizationWithdraw:
+    DeletionPolicy: Retain
+    Type: AWS::Organizations::Policy
+    Properties:
+      Type: SERVICE_CONTROL_POLICY
+      Name: PolicySCPDenyOrganizationWithdraw
+      TargetIds: OrganizationRoot.RootId
+      Content: >-
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Action": [
+                "organizations:LeaveOrganization"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+  PolicySCPDenyAllOutsideAllowedRegions:
+    DeletionPolicy: Retain
+    Type: AWS::Organizations::Policy
+    Properties:
+      Type: SERVICE_CONTROL_POLICY
+      Name: PolicySCPDenyAllOutsideAllowedRegions
+      TargetIds: OrganizationRoot.RootId
+      Content: !Sub |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "DenyAllOutsideAllowedRegions",
+              "Effect": "Deny",
+              "NotAction": [
+                "a4b:*",
+                "acm:*",
+                "aws-marketplace-management:*",
+                "aws-marketplace:*",
+                "aws-portal:*",
+                "budgets:*",
+                "ce:*",
+                "chime:*",
+                "cloudfront:*",
+                "config:*",
+                "cur:*",
+                "directconnect:*",
+                "ec2:DescribeRegions",
+                "ec2:DescribeTransitGateways",
+                "ec2:DescribeVpnGateways",
+                "fms:*",
+                "globalaccelerator:*",
+                "health:*",
+                "iam:*",
+                "importexport:*",
+                "kms:*",
+                "mobileanalytics:*",
+                "networkmanager:*",
+                "organizations:*",
+                "pricing:*",
+                "route53:*",
+                "route53domains:*",
+                "route53-recovery-cluster:*",
+                "route53-recovery-control-config:*",
+                "route53-recovery-readiness:*",
+                "s3:GetAccountPublic*",
+                "s3:ListAllMyBuckets",
+                "s3:ListMultiRegionAccessPoints",
+                "s3:PutAccountPublic*",
+                "shield:*",
+                "sts:*",
+                "support:*",
+                "trustedadvisor:*",
+                "waf-regional:*",
+                "waf:*",
+                "wafv2:*",
+                "wellarchitected:*"
+              ],
+              "Resource": "*",
+              "Condition": {
+                "StringNotEquals": {
+                  "aws:RequestedRegion": [
+                      ${ActivatedRegions}
+                  ]
+                }
+              }
+            }
+          ]
+        }
+  PolicyOrganizationTagging:
+    DeletionPolicy: Retain
+    Type: AWS::Organizations::Policy
+    Properties:
+      Type: TAG_POLICY
+      Name: PolicyOrganizationTagging
+      TargetIds: OrganizationRoot.RootId
+      Content: >-
+        {
+          "tags": {
+            "Owner": {
+              "tag_key": {
+                "@@assign": "ApplicationId"
+              },
+              "enforced_for": {
+                "@@assign": [
+                    "ec2:*",
+                    "ebs:*",
+                    "s3:*"
+                ]
+              }
+            },
+            "BusinessUnitId": {
+              "tag_key": {
+                "@@assign": "BusinessUnitId"
+              },
+              "enforced_for": {
+                "@@assign": [
+                    "ec2:*",
+                    "ebs:*",
+                    "s3:*"
+                ]
+              }
+            },
+            "CostCenter": {
+              "tag_key": {
+                "@@assign": "CostCenter"
+              },
+              "enforced_for": {
+                "@@assign": [
+                    "ec2:*",
+                    "ebs:*",
+                    "s3:*"
+                ]
+              }
+            },
+            "Environment": {
+              "tag_key": {
+                "@@assign": "EnvironmentId"
+              },
+              "tag_value": {
+                "@@assign": [
+                  "Production",
+                  "Development",
+                  "Staging",
+                  "Test"
+                ]
+              },
+              "enforced_for": {
+                "@@assign": [
+                    "ec2:*",
+                    "ebs:*",
+                    "s3:*"
+                ]
+              }
+            }
+          }
+        }
+  ConfigRuleCloudTrailEnabled:
+    Type: AWS::Config::OrganizationConfigRule
+    Properties:
+      OrganizationConfigRuleName: "ConfigRuleCloudTrailEnabled"
+      OrganizationManagedRuleMetadata:
+          RuleIdentifier: "CLOUD_TRAIL_ENABLED"
+          Description: "Cloudtrail enabled rule"
+Outputs:
+  AccountSecurityLogArchiveID:
+    Description: The ID of the log archive security account
+    Value: !Ref AccountSecurityLogArchive
+  AccountSecurityToolsID:
+    Description: The ID of the log archive security account
+    Value: !Ref AccountSecurityTools

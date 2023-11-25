@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation green-field organization deployment orchestrator
+Parameters:
+  ActivatedRegions:
+    Type: List<String>
+    Default: ["us-east-1","us-east-2","us-west-1","us-west-2"]
+    Description: Enter the regions that will be enabled on AWS. Any regions excluded will be locked from the creation of any region specific resources.
+  AccountSecurityLogArchiveName:
+    Type: String
+    Default: Log Archive
+    Description: Enter the name of the log archive account.
+  AccountSecurityLogArchiveEmail:
+    Type: String
+    Description: Enter the email of the log archive account.
+  AccountSecurityToolsName:
+    Type: String
+    Default: Security Tools
+    Description: Enter the name of the security tools account.
+  AccountSecurityToolsEmail:
+    Type: String
+    Description: Enter the email of the security tools account.
+Resources:
+  Organization:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: organization.yaml - REPLACE WITH SIGNED S3 URL
+      Parameters:
+        ActivatedRegions: !Ref ActivatedRegions
+        AccountSecurityLogArchiveName: !Ref AccountSecurityLogArchiveName
+        AccountSecurityLogArchiveEmail: !Ref AccountSecurityLogArchiveEmail
+        AccountSecurityToolsName: !Ref AccountSecurityToolsName
+        AccountSecurityToolsEmail: !Ref AccountSecurityToolsEmail

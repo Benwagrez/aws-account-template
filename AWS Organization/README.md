@@ -1,0 +1,14 @@
+This Cloudformation template deploys an AWS Organization with OUs and foundational accounts. What needs to be done next.
+- Create nested stack for whole setup, can host CloudFormatkion in our own S3 bucket and set template url with signed url
+- Create SCP policies down to the OU level
+- IAM Identity center should be configured
+- Permission boundaries should be set to prevent abuse of admin
+- Policies that enforce logging and a logging location should be configured
+- AWS Config and Cloudtrail enabled (Create a config rule to enable cloudtrail and pack it into a conformance pack: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-config-organizationconformancepack.html)
+- Content for the two foundational security accounts should be created
+- A foundational networking account should be created with transit gateway that ingests a VPN/DX from client
+- Cloudformation that creates resources necessary for Terraform CI/CD deployment in any non-particular account
+- AWS Budgets templates / guide
+- Integrate cost monitoring through tagging
+- Add manuals teps for activating the AWS generated created-by tagging, in the billing console
+- backup policy

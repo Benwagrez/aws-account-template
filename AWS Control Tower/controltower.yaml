@@ -1,0 +1,6 @@
+Resources:
+    TestControl:
+        Type: AWS::ControlTower::EnabledControl
+        Properties:
+            ControlIdentifier: !Sub arn:aws:controltower:${AWS::Region}::control/AWS-GR_RESTRICT_ROOT_USER
+            TargetIdentifier: !Sub arn:aws:organizations::${AWS::AccountId}:ou/o-ybfpt9XXXl/ou-XXXc-nlqXXXXX
