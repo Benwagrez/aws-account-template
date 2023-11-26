@@ -1,9 +1,9 @@
 # AWS Green-Field Organizations Module
 
-[![Checkov](https://github.com/aws-samples/aws-terraform-template/actions/workflows/checkov.yml/badge.svg)](https://github.com/aws-samples/aws-terraform-template/actions/workflows/checkov.yml)
+<!-- [![Checkov](https://github.com/aws-samples/aws-terraform-template/actions/workflows/checkov.yml/badge.svg)](https://github.com/aws-samples/aws-terraform-template/actions/workflows/checkov.yml)
 [![TFLint](https://github.com/aws-samples/aws-terraform-template/actions/workflows/tflint.yml/badge.svg)](https://github.com/aws-samples/aws-terraform-template/actions/workflows/tflint.yml)
 [![terraform-docs](https://github.com/aws-samples/aws-terraform-template/actions/workflows/terraform-docs.yml/badge.svg)](https://github.com/aws-samples/aws-terraform-template/actions/workflows/terraform-docs.yml)
-[![Terratest PR](https://github.com/aws-samples/aws-terraform-template/actions/workflows/terratest-pr.yml/badge.svg)](https://github.com/aws-samples/aws-terraform-template/actions/workflows/terratest-pr.yml)
+[![Terratest PR](https://github.com/aws-samples/aws-terraform-template/actions/workflows/terratest-pr.yml/badge.svg)](https://github.com/aws-samples/aws-terraform-template/actions/workflows/terratest-pr.yml) -->
 
 This repository holds code to deploy a green-field organizations structure on AWS.
 
