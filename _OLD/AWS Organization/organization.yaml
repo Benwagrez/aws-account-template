@@ -29,35 +29,35 @@ Resources:
     Type: 'AWS::Organizations::OrganizationalUnit'
     Properties:
       Name: Security
-      ParentId: !GetAtt OrganizationRoot.RootId
+      ParentId: Fn::GetAtt OrganizationRoot.RootId
   OrganizationSecurityProductionOU:
     Type: 'AWS::Organizations::OrganizationalUnit'
     Properties:
       Name: Production
-      ParentId: !Ref OrganizationSecurityOU
+      ParentId: Fn::Ref OrganizationSecurityOU
   OrganizationInfrastructureOU:
     Type: 'AWS::Organizations::OrganizationalUnit'
     Properties:
       Name: Infrastructure
-      ParentId: !GetAtt OrganizationRoot.RootId
+      ParentId: Fn::GetAtt OrganizationRoot.RootId
   OrganizationWorkloadOU:
     Type: 'AWS::Organizations::OrganizationalUnit'
     Properties:
       Name: Workload
-      ParentId: !GetAtt OrganizationRoot.RootId
+      ParentId: Fn::GetAtt OrganizationRoot.RootId
   OrganizationSandboxOU:
     Type: 'AWS::Organizations::OrganizationalUnit'
     Properties:
       Name: Sandbox
-      ParentId: !GetAtt OrganizationRoot.RootId
+      ParentId: Fn::GetAtt OrganizationRoot.RootId
   AccountSecurityLogArchive:
     Type: AWS::Organizations::Account
     Properties:
-      AccountName: !Ref AccountSecurityLogArchiveName
-      Email: !Ref AccountSecurityLogArchiveEmail
-      ParentIds: 
-        - !Ref OrganizationSecurityProductionOU
-      Tags: 
+      AccountName: Fn::Ref AccountSecurityLogArchiveName
+      Email: Fn::Ref AccountSecurityLogArchiveEmail
+      ParentIds:
+        - Fn::Ref OrganizationSecurityProductionOU
+      Tags:
         - Key: ApplicationId
           Value: FOUNDATIONAL
         - Key: BusinessUnitId
@@ -68,7 +68,7 @@ Resources:
           Value: Production
         - Key: Description
           Value: AWS account for centralized logging, Monitoring, application insights.
-    DependsOn:  
+    DependsOn:
       - PolicySCPDenyControlResourceChanges
       - PolicySCPDenyOrganizationWithdraw
       - PolicyOrganizationTagging
@@ -76,11 +76,11 @@ Resources:
   AccountSecurityTools:
     Type: AWS::Organizations::Account
     Properties:
-      AccountName: !Ref AccountSecurityToolsName
-      Email: !Ref AccountSecurityToolsEmail
-      ParentIds: 
-        - !Ref OrganizationSecurityProductionOU
-      Tags: 
+      AccountName: Fn::Ref AccountSecurityToolsName
+      Email: Fn::Ref AccountSecurityToolsEmail
+      ParentIds:
+        - Fn::Ref OrganizationSecurityProductionOU
+      Tags:
         - Key: ApplicationId
           Value: FOUNDATIONAL
         - Key: BusinessUnitId
@@ -91,7 +91,7 @@ Resources:
           Value: Production
         - Key: Description
           Value: AWS account for peventative and responsive security controls.
-    DependsOn: 
+    DependsOn:
       - PolicySCPDenyControlResourceChanges
       - PolicySCPDenyOrganizationWithdraw
       - PolicyOrganizationTagging
@@ -192,7 +192,7 @@ Resources:
       Type: SERVICE_CONTROL_POLICY
       Name: PolicySCPDenyAllOutsideAllowedRegions
       TargetIds: OrganizationRoot.RootId
-      Content: !Sub |
+      Content: >-
         {
           "Version": "2012-10-17",
           "Statement": [
@@ -247,7 +247,7 @@ Resources:
               "Condition": {
                 "StringNotEquals": {
                   "aws:RequestedRegion": [
-                      ${ActivatedRegions}
+                      "us-east-1"
                   ]
                 }
               }
@@ -332,7 +332,7 @@ Resources:
 Outputs:
   AccountSecurityLogArchiveID:
     Description: The ID of the log archive security account
-    Value: !Ref AccountSecurityLogArchive
+    Value: Fn::Ref AccountSecurityLogArchive
   AccountSecurityToolsID:
     Description: The ID of the log archive security account
-    Value: !Ref AccountSecurityTools
+    Value: Fn::Ref AccountSecurityTools

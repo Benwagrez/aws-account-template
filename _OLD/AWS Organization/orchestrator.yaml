@@ -25,8 +25,8 @@ Resources:
     Properties:
       TemplateURL: organization.yaml - REPLACE WITH SIGNED S3 URL
       Parameters:
-        ActivatedRegions: !Ref ActivatedRegions
-        AccountSecurityLogArchiveName: !Ref AccountSecurityLogArchiveName
-        AccountSecurityLogArchiveEmail: !Ref AccountSecurityLogArchiveEmail
-        AccountSecurityToolsName: !Ref AccountSecurityToolsName
-        AccountSecurityToolsEmail: !Ref AccountSecurityToolsEmail
+        ActivatedRegions: Fn::Ref ActivatedRegions
+        AccountSecurityLogArchiveName: Fn::Ref AccountSecurityLogArchiveName
+        AccountSecurityLogArchiveEmail: Fn::Ref AccountSecurityLogArchiveEmail
+        AccountSecurityToolsName: Fn::Ref AccountSecurityToolsName
+        AccountSecurityToolsEmail: Fn::Ref AccountSecurityToolsEmail

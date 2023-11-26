@@ -1,0 +1,6 @@
+- Build with CLI or Cloudformation
+- Pull template from AWS terraform best practices into another repo for actual Terraform code
+- Need to create IAM profile with access keys, output those access keys (?)
+- Could use Terraform cloud or remote backend using S3 and DynamoDB (for state locking)
+- Configure for remote state (https://developer.hashicorp.com/terraform/language/settings/backends/s3) using credential profile (https://aws.amazon.com/blogs/security/a-new-and-standardized-way-to-manage-credentials-in-the-aws-sdks/) which is just aws login really
+- Include documentation on turning this into Terraform cloud state management or building a CI/CD pipeline
