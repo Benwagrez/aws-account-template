@@ -32,10 +32,9 @@ This repository holds code to deploy a green-field organizations structure on AW
 
 > TODO list
 
-- [ ] Configure Terraform cloud to be used with this deployment, include documentation for creating IAM OIDC provider for Terraform and proper role
-- [ ] Create the repository secrets, variables and environments as documented in the [Terraform Reusable Workflow Prerequisites](https://github.com/aws-samples/aws-terraform-reusable-workflow#prerequisites).
-- [ ] Update the [Deploy workflow](./.github/workflows/deploy.yml) with your environment, regions, and workflow triggers.
-- [ ] (Optional) Update the [Destroy workflow](./.github/workflows/destroy.yml).
+- [x] Configure Terraform cloud to be used with this deployment, include documentation for creating IAM OIDC provider for Terraform and proper role || Configured as stated in the following: https://developer.hashicorp.com/terraform/cloud-docs/workspaces/dynamic-provider-credentials/aws-configuration#create-an-oidc-identity-provider
+- [x] Create the repository secrets, variables and environments as documented in the [Terraform Reusable Workflow Prerequisites](https://github.com/aws-samples/aws-terraform-reusable-workflow#prerequisites).
+- [x] Update the [Deploy workflow](./.github/workflows/deploy.yml) with your environment, regions, and workflow triggers.
 - [ ] Populate staging scripts folder with an AWS CLI based script that dynamically deploys an S3 DynamoDB remote state based on configured AWS profile
 - [ ] Recreate organizations cloudformation script in Terraform
 - [ ] Create folder to hold policy configurations; create an AWS Config conformance pack
