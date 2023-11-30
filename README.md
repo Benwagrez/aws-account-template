@@ -38,6 +38,7 @@ This repository holds code to deploy a green-field organizations structure on AW
 - [ ] Populate staging scripts folder with an AWS CLI based script that dynamically deploys an S3 DynamoDB remote state based on configured AWS profile
 - [ ] Recreate organizations cloudformation script in Terraform
 - [ ] Create folder to hold policy configurations; create an AWS Config conformance pack
+- [ ] Scope the Terraform SPNs access through IAM policy using access analyzer post deployments
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements

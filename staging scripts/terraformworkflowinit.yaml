@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: AWS CloudFormation Organizations Deployment
+Parameters:
+  TerraformSPNNameInput:
+    Type: String
+    AllowedPattern: ^[a-zA-Z0-9_\-]*$
+    MaxLength: 30
+    Default: TerraformSPN
+    Description: Input the name of the IAM account provisioned for use with Terraform for the AWS Organizations deployment.
+  StateBucketNameInput:
+    Type: String
+    AllowedPattern: ^[a-z0-9]*$
+    MaxLength: 40
+    Default: rootstatebucket
+    Description: Input the name of the S3 bucket which will hold the Terraform state file configuration for your AWS organizations deployment.
+Resources:
+  TerraformSPNName:
+    Type: AWS::IAM::User
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      Tags:
+        - Key: ApplicationId
+          Value: FOUNDATIONAL
+        - Key: BusinessUnitId
+          Value: Cloud Operations
+        - Key: CostCenter
+          Value: 000001
+        - Key: EnvironmentId
+          Value: Production
+        - Key: Description
+          Value: Terraform SPN for the root AWS account
+      UserName: Fn::Ref TerraformSPNNameInput
+  TerraformSPNAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      Status: Active
+      UserName: Fn::Ref TerraformSPNName
+  TerraformSPNAccessKeyStore:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: Fn::Sub /Terraform/credentials/${TerraformSPNName}
+      SecretString: Fn::Sub '{"ACCESS_KEY":"${TerraformSPNAccessKey}","SECRET_KEY":"${TerraformSPNAccessKey.SecretAccessKey}"}'
+  RemoteStateS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: Fn::Join ['-', Fn::Sub ['${StateBucketNameInput}', Fn::Select [4, Fn::Split ['-', Fn::Select [2, Fn::Split ['/', ${AWS::StackId}]]]]]]"
+      DeletionPolicy:
+      BucketEncryption: SSE-S3
+      VersioningConfiguration:
+        - Status: Enabled
+      Tags:
+        - Key: ApplicationId
+          Value: FOUNDATIONAL
+        - Key: BusinessUnitId
+          Value: Cloud Operations
+        - Key: CostCenter
+          Value: 000001
+        - Key: EnvironmentId
+          Value: Production
+        - Key: Description
+          Value: Terraform remote state management for the root AWS account
+  RemoteStateDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: LockID
+          KeyType: HASH
+      TableName: Fn::Join ['-', Fn::Sub ['${StateBucketNameInput}backendlocking', Fn::Select [4, Fn::Split ['-', Fn::Select [2, Fn::Split ['/', ${AWS::StackId}]]]]]]"
+      AttributeDefinitions:
+        - AttributeName: LockID
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: ApplicationId
+          Value: FOUNDATIONAL
+        - Key: BusinessUnitId
+          Value: Cloud Operations
+        - Key: CostCenter
+          Value: 000001
+        - Key: EnvironmentId
+          Value: Production
+        - Key: Description
+          Value: Terraform remote state management for the root AWS account
+Outputs:
+  TerraformSPNAccessKeyStoreURLOutput:
+    Description: Fn::Sub Location of the access key credentials for ${TerraformSPNName}
+    Value: Fn::Ref TerraformSPNAccessKeyStore
+  RemoteStateBucketNameOutput:
+    Description: Name of the S3 bucket that stores Terraform state
+    Value: Fn::Ref RemoteStateS3Bucket
+  RemoteStateRegionOutput:
+    Description: Region of the S3 bucket that stores Terraform state
+    Value: Fn::Ref AWS::Region
+  RemoteStateDynamoDBNameOutput:
+    Description: Name of the DynamoDB table that locks state
+    Value: Fn::Ref RemoteStateDynamoDBTable
