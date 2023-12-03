@@ -14,7 +14,7 @@ Parameters:
     Default: rootstatebucket
     Description: Input the name of the S3 bucket which will hold the Terraform state file configuration for your AWS organizations deployment.
 Resources:
-  TerraformSPNName:
+  TerraformSPN:
     Type: AWS::IAM::User
     Properties:
       ManagedPolicyArns:
@@ -30,32 +30,42 @@ Resources:
           Value: Production
         - Key: Description
           Value: Terraform SPN for the root AWS account
-      UserName: Fn::Ref TerraformSPNNameInput
+      UserName: Fn::Sub '${TerraformSPNNameInput}-${AWS::Region}-${AWS::AccountId}'
   TerraformSPNAccessKey:
     Type: AWS::IAM::AccessKey
     Properties:
       Status: Active
-      UserName: Fn::Ref TerraformSPNName
+      UserName:
+        Ref: TerraformSPN
+    DependsOn: TerraformSPN
   TerraformSPNAccessKeyStore:
     Type: AWS::SecretsManager::Secret
     Properties:
-      Name: Fn::Sub /Terraform/credentials/${TerraformSPNName}
-      SecretString: Fn::Sub '{"ACCESS_KEY":"${TerraformSPNAccessKey}","SECRET_KEY":"${TerraformSPNAccessKey.SecretAccessKey}"}'
-  RemoteStateS3Bucket:
-    Type: 'AWS::S3::Bucket'
+      Name: Fn::Join ["", [/terraform/credentials/accesskey/,!Ref TerraformSPN]]
+      SecretString: Fn::Join ["", [ACCESS_KEY:,!Ref TerraformSPNAccessKey]]
+    DependsOn: TerraformSPN
+  TerraformSPNSecretAccessKeyStore:
+    Type: AWS::SecretsManager::Secret
     Properties:
-      BucketName: Fn::Join ['-', Fn::Sub ['${StateBucketNameInput}', Fn::Select [4, Fn::Split ['-', Fn::Select [2, Fn::Split ['/', ${AWS::StackId}]]]]]]"
-      DeletionPolicy:
-      BucketEncryption: SSE-S3
+      Name: Fn::Join ["", [/terraform/credentials/secretaccesskey/,!Ref TerraformSPN]]
+      SecretString: Fn::Join ["", [SECRET_KEY:,Fn::GetAtt TerraformSPNAccessKey.SecretAccessKey]]
+    DependsOn: TerraformSPN
+  RemoteStateS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: Fn::Sub '${StateBucketNameInput}-${AWS::Region}-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
       VersioningConfiguration:
-        - Status: Enabled
+        Status: Enabled
       Tags:
         - Key: ApplicationId
           Value: FOUNDATIONAL
         - Key: BusinessUnitId
           Value: Cloud Operations
         - Key: CostCenter
-          Value: 000001
+          Value: '000001'
         - Key: EnvironmentId
           Value: Production
         - Key: Description
@@ -66,7 +76,7 @@ Resources:
       KeySchema:
         - AttributeName: LockID
           KeyType: HASH
-      TableName: Fn::Join ['-', Fn::Sub ['${StateBucketNameInput}backendlocking', Fn::Select [4, Fn::Split ['-', Fn::Select [2, Fn::Split ['/', ${AWS::StackId}]]]]]]"
+      TableName: Fn::Sub '${StateBucketNameInput}-backendlocking-${AWS::Region}-${AWS::AccountId}'
       AttributeDefinitions:
         - AttributeName: LockID
           AttributeType: S
@@ -84,14 +94,17 @@ Resources:
           Value: Terraform remote state management for the root AWS account
 Outputs:
   TerraformSPNAccessKeyStoreURLOutput:
-    Description: Fn::Sub Location of the access key credentials for ${TerraformSPNName}
-    Value: Fn::Ref TerraformSPNAccessKeyStore
+    Description: Fn::Sub Location of the access key credentials for ${TerraformSPNNameInput}
+    Value:
+      Ref: TerraformSPNAccessKeyStore
   RemoteStateBucketNameOutput:
     Description: Name of the S3 bucket that stores Terraform state
-    Value: Fn::Ref RemoteStateS3Bucket
+    Value:
+      Ref: RemoteStateS3Bucket
   RemoteStateRegionOutput:
     Description: Region of the S3 bucket that stores Terraform state
-    Value: Fn::Ref AWS::Region
+    Value: Fn::Sub ${AWS::Region}
   RemoteStateDynamoDBNameOutput:
     Description: Name of the DynamoDB table that locks state
-    Value: Fn::Ref RemoteStateDynamoDBTable
+    Value:
+      Ref: RemoteStateDynamoDBTable
