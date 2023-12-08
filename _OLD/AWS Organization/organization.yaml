@@ -190,7 +190,7 @@ Resources:
     Type: AWS::Organizations::Policy
     Properties:
       Type: SERVICE_CONTROL_POLICY
-      Name: PolicySCPDenyAllOutsideAllowedRegions
+      Name: PolicySCPDenyAllDisallowedRegions
       TargetIds: OrganizationRoot.RootId
       Content: >-
         {

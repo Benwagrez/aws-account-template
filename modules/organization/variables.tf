@@ -1,16 +1,11 @@
 # Basic
 
-variable "region" {
-  description = "Region where to deploy the resources."
-  type        = string
+variable "common_tags" {
+  type        = map(string)
+  description = "Common tags to provision on resources created in Terraform."
 }
 
-variable "environment" {
-  type        = string
-  description = "The environment where to deploy the solution."
-}
-
-# Organization module ####
+# Organization hierarchial structure
 
 variable "organizations_structure" {
   type = list(object({
@@ -25,6 +20,8 @@ variable "organizations_structure" {
   description = "List(object) structure definition for AWS Organization."
 }
 
+# Account variables
+
 variable "log_archive_account_email" {
   type        = string
   description = "Email for the log archive AWS account to be provisioned in the Security OU as a foundational AWS account."
@@ -32,7 +29,7 @@ variable "log_archive_account_email" {
 
 variable "log_archive_account_name" {
   type        = string
-  nullable    = true
+  default     = "Log Archive"
   description = "Name for the log archive AWS account to be provisioned in the Security OU as a foundational AWS account."
 }
 
@@ -43,8 +40,6 @@ variable "security_tools_account_email" {
 
 variable "security_tools_account_name" {
   type        = string
-  nullable    = true
+  default     = "Security"
   description = "Name for the security tools AWS account to be provisioned in the Security OU as a foundational AWS account."
 }
-
-####

@@ -35,7 +35,9 @@ This repository holds code to deploy a green-field organizations structure on AW
 - [x] Configure Terraform cloud to be used with this deployment, include documentation for creating IAM OIDC provider for Terraform and proper role || Configured as stated in the following: https://developer.hashicorp.com/terraform/cloud-docs/workspaces/dynamic-provider-credentials/aws-configuration#create-an-oidc-identity-provider
 - [x] Create the repository secrets, variables and environments as documented in the [Terraform Reusable Workflow Prerequisites](https://github.com/aws-samples/aws-terraform-reusable-workflow#prerequisites).
 - [x] Update the [Deploy workflow](./.github/workflows/deploy.yml) with your environment, regions, and workflow triggers.
-- [ ] Populate staging scripts folder with an AWS CLI based script that dynamically deploys an S3 DynamoDB remote state based on configured AWS profile
+- [X] Populate staging scripts folder with an AWS CLI based script that dynamically deploys an S3 DynamoDB remote state based on configured AWS profile
+- [ ] Add a module for organizations
+- [ ] Validate config against trusted advisor recommendations
 - [ ] Recreate organizations cloudformation script in Terraform
 - [ ] Create folder to hold policy configurations; create an AWS Config conformance pack
 - [ ] Scope the Terraform SPNs access through IAM policy using access analyzer post deployments
@@ -51,33 +53,33 @@ This repository holds code to deploy a green-field organizations structure on AW
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_random"></a> [random](#provider\_random) | >=3.0.0 |
+No providers.
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_organizations"></a> [organizations](#module\_organizations) | ./modules/organization | n/a |
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [random_pet.main](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
+No resources.
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_environment"></a> [environment](#input\_environment) | The environment where to deploy the solution | `string` | n/a | yes |
-| <a name="input_region"></a> [region](#input\_region) | Region where to deploy the resources | `string` | n/a | yes |
+| <a name="input_environment"></a> [environment](#input\_environment) | The environment where to deploy the solution. | `string` | n/a | yes |
+| <a name="input_log_archive_account_email"></a> [log\_archive\_account\_email](#input\_log\_archive\_account\_email) | Email for the log archive AWS account to be provisioned in the Security OU as a foundational AWS account. | `string` | n/a | yes |
+| <a name="input_log_archive_account_name"></a> [log\_archive\_account\_name](#input\_log\_archive\_account\_name) | Name for the log archive AWS account to be provisioned in the Security OU as a foundational AWS account. | `string` | n/a | yes |
+| <a name="input_organizations_structure"></a> [organizations\_structure](#input\_organizations\_structure) | List(object) structure definition for AWS Organization. | <pre>list(object({<br>    id           = string,<br>    child_ou_ids = list(string)<br>  }))</pre> | n/a | yes |
+| <a name="input_region"></a> [region](#input\_region) | Region where to deploy the resources. | `string` | n/a | yes |
+| <a name="input_security_tools_account_email"></a> [security\_tools\_account\_email](#input\_security\_tools\_account\_email) | Email for the security tools AWS account to be provisioned in the Security OU as a foundational AWS account. | `string` | n/a | yes |
+| <a name="input_security_tools_account_name"></a> [security\_tools\_account\_name](#input\_security\_tools\_account\_name) | Name for the security tools AWS account to be provisioned in the Security OU as a foundational AWS account. | `string` | n/a | yes |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_hello_world"></a> [hello\_world](#output\_hello\_world) | Test output used by Terrastest |
-| <a name="output_random_pet"></a> [random\_pet](#output\_random\_pet) | Dummy output |
+No outputs.
 <!-- END_TF_DOCS -->
 
 ## Security

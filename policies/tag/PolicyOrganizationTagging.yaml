@@ -1,0 +1,60 @@
+{
+  "tags": {
+    "Owner": {
+      "tag_key": {
+        "@@assign": "ApplicationId"
+      },
+      "enforced_for": {
+        "@@assign": [
+            "ec2:*",
+            "ebs:*",
+            "s3:*"
+        ]
+      }
+    },
+    "BusinessUnitId": {
+      "tag_key": {
+        "@@assign": "BusinessUnitId"
+      },
+      "enforced_for": {
+        "@@assign": [
+            "ec2:*",
+            "ebs:*",
+            "s3:*"
+        ]
+      }
+    },
+    "CostCenter": {
+      "tag_key": {
+        "@@assign": "CostCenter"
+      },
+      "enforced_for": {
+        "@@assign": [
+            "ec2:*",
+            "ebs:*",
+            "s3:*"
+        ]
+      }
+    },
+    "Environment": {
+      "tag_key": {
+        "@@assign": "EnvironmentId"
+      },
+      "tag_value": {
+        "@@assign": [
+          "Production",
+          "Development",
+          "Staging",
+          "Test"
+        ]
+      },
+      "enforced_for": {
+        "@@assign": [
+            "ec2:*",
+            "ebs:*",
+            "s3:*"
+        ]
+      }
+    }
+  }
+}
