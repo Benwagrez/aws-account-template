@@ -25,6 +25,12 @@ variable "organizations_structure" {
   description = "List(object) structure definition for AWS Organization."
 }
 
+variable "deploy_conformance_pack" {
+  type        = bool
+  nullable    = true
+  description = "Boolean to deploy AWS Organization config conformance pack."
+}
+
 variable "log_archive_account_email" {
   type        = string
   description = "Email for the log archive AWS account to be provisioned in the Security OU as a foundational AWS account."
@@ -36,15 +42,14 @@ variable "log_archive_account_name" {
   description = "Name for the log archive AWS account to be provisioned in the Security OU as a foundational AWS account."
 }
 
-variable "security_tools_account_email" {
+variable "security_tool_account_email" {
   type        = string
   description = "Email for the security tools AWS account to be provisioned in the Security OU as a foundational AWS account."
 }
 
-variable "security_tools_account_name" {
+variable "security_tool_account_name" {
   type        = string
   nullable    = true
   description = "Name for the security tools AWS account to be provisioned in the Security OU as a foundational AWS account."
 }
-
 ####

@@ -1,5 +1,10 @@
 # Basic
 
+variable "region" {
+  description = "Region where to deploy the resources."
+  type        = string
+}
+
 variable "common_tags" {
   type        = map(string)
   description = "Common tags to provision on resources created in Terraform."
@@ -20,6 +25,14 @@ variable "organizations_structure" {
   description = "List(object) structure definition for AWS Organization."
 }
 
+# Config variables
+
+variable "deploy_conformance_pack" {
+  type        = bool
+  default     = false
+  description = "Boolean to deploy AWS Organization config conformance pack."
+}
+
 # Account variables
 
 variable "log_archive_account_email" {
@@ -33,12 +46,12 @@ variable "log_archive_account_name" {
   description = "Name for the log archive AWS account to be provisioned in the Security OU as a foundational AWS account."
 }
 
-variable "security_tools_account_email" {
+variable "security_tool_account_email" {
   type        = string
   description = "Email for the security tools AWS account to be provisioned in the Security OU as a foundational AWS account."
 }
 
-variable "security_tools_account_name" {
+variable "security_tool_account_name" {
   type        = string
   default     = "Security"
   description = "Name for the security tools AWS account to be provisioned in the Security OU as a foundational AWS account."
